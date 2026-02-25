@@ -1,5 +1,6 @@
 import os
 import sys
+import subprocess
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import (
@@ -21,7 +22,16 @@ QtCore.qDebug(f"Executing save2vault")
 def save(filename):
     QtCore.qInfo(f"saving {filename} project")
     active_document.setBatchmode(True)  # no popups while saving
-    active_document.saveAs(filename[:-4] + ".png")
+    png_filename = filename[:-4] + ".png"
+    active_document.saveAs(png_filename)
+    try:
+        subprocess.run(["magick", png_filename, png_filename], check=True)
+        QtCore.qInfo(f"Normalized metadata for {png_filename}")
+    except subprocess.CalledProcessError as e:
+        QtCore.qWarning(f"Failed to normalize PNG metadata: {e}")
+    except FileNotFoundError:
+        QtCore.qWarning("ImageMagick not found - skipping metadata normalization")
+
     active_document.saveAs(filename)
 
 
