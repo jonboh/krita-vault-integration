@@ -22,17 +22,15 @@ QtCore.qDebug(f"Executing save2vault")
 def save(filename):
     QtCore.qInfo(f"saving {filename} project")
     active_document.setBatchmode(True)  # no popups while saving
+
+    active_document.setResolution(300)
+
     png_filename = filename[:-4] + ".png"
     active_document.saveAs(png_filename)
-    try:
-        subprocess.run(["magick", png_filename, png_filename], check=True)
-        QtCore.qInfo(f"Normalized metadata for {png_filename}")
-    except subprocess.CalledProcessError as e:
-        QtCore.qWarning(f"Failed to normalize PNG metadata: {e}")
-    except FileNotFoundError:
-        QtCore.qWarning("ImageMagick not found - skipping metadata normalization")
 
     active_document.saveAs(filename)
+
+    active_document.setBatchmode(False)
 
 
 class SaveDialog(QDialog):
